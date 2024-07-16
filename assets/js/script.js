@@ -43,12 +43,56 @@ function displayWeatherInfo(obj){
         humidity.text(`Humidity: ${data.list[0].main.humidity}%`);
         
 
-        //append all infomartion
+        //clear all previous information and append all new infomartion
+        currentArea.html('');
         currentArea.append(info,temp,wind,humidity);
 
+        //bring in area for all future condition displays and clear all the previous information
+        const futureArea = $('#future');
+        futureArea.html('');
 
+        for(let i = 1; i<6;i++){
 
+            //make section to hold the information
+            const container = $('<div>');
 
+            //add bootstrap classes for styling
+            container.addClass('col-12 col-sm-12 col-md-6 col-lg-2 mx-3 my-2 p-0');
+            
+            if(data.list[i].main.temp>=90){
+                container.addClass('bg-danger text-white');
+            }else if(70<=data.list[i].main.temp && data.list[i].main.temp<90){
+                container.addClass('bg-warning text-white');
+            }else if(data.list[i].main.temp<70){
+                container.addClass('bg-info text-white');
+            }
+
+            //make and add day info
+            let dateNum = dayjs().add(i,'day');
+            const date = $('<h5>');
+            date.text(`(${ dateNum.format('MM/DD/YYYY')})`);
+
+            //make and add icon
+            const icon = $('<img>');
+            icon.attr('src',`https://openweathermap.org/img/wn/${data.list[i].weather[0].icon}@2x.png`);
+
+            //make and add temperature info
+            const tem = $('<p>');
+            tem.text(`Temp: ${data.list[i].main.temp}°F`);
+
+            //make and add wind info
+            const win = $('<p>');
+            win.text(`Wind: ${data.list[i].wind.speed}MPH`);
+
+            //make and add humidity info
+            const hum = $('<p>');
+            hum.text(`Humidity: ${data.list[i].main.humidity}%`);
+
+            //append all infor to card and page
+            container.append(date,icon,tem,win,hum);
+            futureArea.append(container);
+
+        }
     });
 
 
@@ -113,16 +157,20 @@ function search(){
 
 
 function renderPage(){
-    //load history buttons
-
-    //load last city info
+    if(lastCity!=null){
+        //load history buttons and load last city info
+        for(const item of searchHistory){
+            createCityButton(item,1);
+        }
+        displayWeatherInfo(lastCity);
+    }
 
 }
 
-function createCityButton(obj){
+function createCityButton(obj,id=0){
     const city = searchHistory.find((element)=>element.city == obj.city);
 
-    if(city == undefined || city.latitude != obj.latitude || city.longitude != obj.longitude){
+    if(city == undefined || city.latitude != obj.latitude || city.longitude != obj.longitude || id==1){
         //bring in button list
         const btnList = $('#buttonHistory');
 
@@ -134,7 +182,7 @@ function createCityButton(obj){
         newBtn.attr('data-state', obj.state);
 
         //add bootsrap class fro styling
-        newBtn.addClass('btn btn-primary my-2');
+        newBtn.addClass('btn btn-primary my-2 cityBtn');
 
         //add text
         newBtn.text(`${obj.city},${obj.state}`);
@@ -142,14 +190,20 @@ function createCityButton(obj){
         btnList.append(newBtn);
 
         //save to local storage
-        searchHistory.push(obj);
-        localStorage.setItem('cityHistory',JSON.stringify(searchHistory));
+        if(id !=1){
+            searchHistory.push(obj);
+            localStorage.setItem('cityHistory',JSON.stringify(searchHistory));
+        }
     }
 }
 
-function cityButtonClick(){
-    // load weather info
-    // set last city local storage
+function cityButtonClick(event){
+    const city = searchHistory.find((element)=> element.city == event.target.getAttribute('data-city') && element.state == event.target.getAttribute('data-state') );
+    displayWeatherInfo(city);
+    
+    lastCity = city;
+    localStorage.setItem('lastCity',JSON.stringify(lastCity));
+
 }
 
 
@@ -165,11 +219,13 @@ $(document).ready(function(){
         searchHistory = [];
     }
 
+    //render page
+    renderPage();
 
     //set up button
     $('#search').on('click',search);
 
-
+    $('#buttonHistory').on('click','.cityBtn',cityButtonClick);
 
 
 
@@ -177,18 +233,3 @@ $(document).ready(function(){
 
 
 });
-
-
-
-/*if(!(longitude == undefined && latitude == undefined)){
-        let weatherData;
-        fetch(`https://api.openweathermap.org/data/2.5/forecast?cnt=6&lat=${longitude}&lon=${latitude}&appid=ea02e1f93a0a208ae95fc700a4520980`)
-        .then(function(response){
-            weatherData = response.json();
-        })
-        console.log(weatherData);
-    }else{
-        errors.html('');
-        errors.append('not a valid city');
-
-    }*/
