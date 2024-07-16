@@ -114,7 +114,7 @@ function search(){
         const state = search.split(',')[1].trim();
         
         //turn city name into coodinates
-        fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${city},${state},us&appid=ea02e1f93a0a208ae95fc700a4520980`)
+        fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${city},${state},us&appid=ea02e1f93a0a208ae95fc700a4520980`)
         .then(function(response){
             if(response.ok){
                 response.json().then(function(data){
