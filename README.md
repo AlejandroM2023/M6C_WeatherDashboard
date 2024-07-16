@@ -8,7 +8,7 @@ In this web application the user is presented a blank page when they first conne
 
 ![alt text](./assets/images/image.png)
 
-link to github pages: https://alejandrom2023.github.io/M4C_PersonalBlog/
+link to github pages: https://alejandrom2023.github.io/M6C_WeatherDashboard/
 
 
 ## Installation
